@@ -1,0 +1,969 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WareEase</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --primary: #0052cc;
+  --primary-dark: #003d99;
+  --primary-light: #e6f0ff;
+  --blue-bg: #f4f7fc;
+  --slate-900: #0a192f;
+  --slate-800: #172a45;
+  --slate-750: #1e3a60;
+  --slate-700: #334e68;
+  --slate-500: #627d98;
+  --slate-200: #bcccdc;
+  --slate-100: #d9e2ec;
+  --slate-50: #f0f4f8;
+  --white: #ffffff;
+  --success-bg: #e3fcef;
+  --success-text: #0d5635;
+  --danger-bg: #ffe3e3;
+  --danger-text: #991b1b;
+  --radius: 12px;
+  --shadow: 0 10px 25px -5px rgb(0 82 204 / 0.08), 0 8px 10px -6px rgb(0 82 204 / 0.04);
+  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--blue-bg);
+  color: var(--slate-900);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+button, input, select, textarea { font: inherit; }
+
+button {
+  border: 0;
+  border-radius: var(--radius);
+  padding: 11px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+button:active { transform: scale(0.98); }
+
+.primary { background: var(--primary); color: var(--white); box-shadow: 0 4px 12px rgb(0 82 204 / 0.25); }
+.primary:hover { background: var(--primary-dark); }
+
+.secondary { background: var(--primary-light); color: var(--primary-dark); }
+.secondary:hover { background: #d0e4ff; }
+
+.danger { background: var(--danger-bg); color: var(--danger-text); }
+.danger:hover { background: #fecaca; }
+
+.app {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+.side {
+  background: linear-gradient(180deg, var(--slate-900), var(--slate-800));
+  color: var(--white);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 6px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.brand img {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.brand b { display: block; font-size: 17px; letter-spacing: -0.3px; }
+.brand small { font-size: 11px; color: #64b5f6; font-weight: 600; letter-spacing: 0.5px; }
+
+.nav { display: flex; flex-direction: column; gap: 6px; }
+.nav button {
+  text-align: left;
+  background: transparent;
+  color: #8892b0;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-weight: 500;
+}
+
+.nav button.active, .nav button:hover {
+  background: var(--slate-750);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.foot {
+  margin-top: auto;
+  color: #8892b0;
+  font-size: 12px;
+  padding: 0 10px;
+}
+
+.top {
+  height: 76px;
+  background: var(--white);
+  border-bottom: 1px solid var(--slate-200);
+  padding: 0 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.top-user { text-align: right; }
+.top-user b { display: block; font-size: 14px; }
+.top-user small { color: var(--slate-500); }
+
+.content {
+  padding: 36px;
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.head h1 { margin: 0 0 4px; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--slate-900); }
+.head p { margin: 0; color: var(--slate-500); }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.card, .panel {
+  background: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease;
+}
+.card:hover { transform: translateY(-2px); }
+
+.card small { color: var(--slate-500); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; }
+.card strong { display: block; font-size: 34px; margin: 12px 0 4px; font-weight: 700; color: var(--slate-900); }
+
+.panel { margin-bottom: 28px; }
+.panel h2 { font-size: 17px; font-weight: 600; margin: 0 0 18px; color: var(--slate-900); }
+
+.panelhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.panelhead h2 { margin: 0; }
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.dashboard-grid .panel {
+  margin-bottom: 0;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.chart-container {
+  position: relative;
+  height: 280px;
+  width: 100%;
+}
+
+.toolbar {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.toolbar input, .toolbar select { min-width: 220px; }
+
+.fieldgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--slate-700); letter-spacing: 0.3px; }
+.field input, .field select, .field textarea, .toolbar input, .toolbar select {
+  width: 100%;
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  background: var(--white);
+  color: var(--slate-900);
+  transition: all 0.2s;
+}
+.field input:focus, .field select:focus, .field textarea:focus, .toolbar input:focus, .toolbar select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+.field textarea { min-height: 100px; resize: vertical; }
+.full { grid-column: 1 / -1; }
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+  border-top: 1px solid var(--slate-200);
+  padding-top: 20px;
+}
+
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--slate-200); }
+th { background: var(--slate-50); color: var(--slate-500); font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+tr:hover td { background: #f8fafc; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--success-bg);
+  color: var(--success-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.inactive { background: var(--danger-bg); color: var(--danger-text); }
+
+.modalbg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 25, 47, 0.6);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.modalbg.open { display: flex; }
+.modal {
+  background: var(--white);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: var(--shadow-lg);
+  padding: 30px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+.toast {
+  display: none;
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  background: var(--slate-900);
+  color: var(--white);
+  padding: 16px 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  font-weight: 500;
+  z-index: 1100;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.mobile { display: none; }
+
+@media(max-width: 1200px) {
+  .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+  .span-2 { grid-column: span 2; }
+}
+
+@media(max-width: 1024px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media(max-width: 768px) {
+  .app { display: block; }
+  .side { display: none; position: fixed; inset: 0 auto 0 0; width: 280px; z-index: 20; box-shadow: var(--shadow-lg); }
+  .side.open { display: flex; }
+  .mobile { display: inline-flex; align-items: center; justify-content: center; }
+  .top { padding: 0 18px; }
+  .content { padding: 18px; }
+  .head { flex-direction: column; align-items: stretch; }
+  .fieldgrid { grid-template-columns: 1fr; }
+  .full { grid-column: auto; }
+  .cards { grid-template-columns: 1fr; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .span-2 { grid-column: span 1; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="brand">
+      <img src="logo.jpg" alt="WareEase logo">
+      <div><b>WareEase</b><small>WHERE BUSINESS FINDS SPACE</small></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="foot">Interactive prototype · Local browser data</div>
+  </aside>
+  <main>
+    <header class="top">
+      <div>
+        <button class="secondary mobile" id="menu">☰</button>
+        <span id="crumb" style="font-weight: 600;">Dashboard</span><br>
+        <small>Storage & Inventory Management System</small>
+      </div>
+      <div class="top-user">
+        <b>Admin</b>
+        <small>Account</small>
+      </div>
+    </header>
+    <section class="content" id="content"></section>
+  </main>
+</div>
+
+<div class="modalbg" id="modalbg">
+  <div class="modal" id="modalcontent"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const pages=[
+  ['dashboard','▦ Dashboard'],
+  ['clients','▣ Client Management'],
+  ['inventory','▤ Inventory'],
+  ['receiving','↓ Receiving'],
+  ['releasing','↑ Releasing'],
+  ['locations','⌖ Storage Locations'],
+  ['transactions','↔ Transaction History'],
+  ['reports','▥ Reports'],
+  ['users','♙ User Management'],
+  ['settings','⚙ Settings & Data']
+];
+
+const titles = Object.fromEntries(pages.map(x => [x[0], x[1].slice(2)]));
+const today = () => new Date().toISOString().slice(0, 10);
+const KEY = 'wareease_demo_v2';
+
+const seed = {
+  clients: [
+    {id:'CL-001', name:'Sample Trading Co.', type:'Trading/Retail', contact:'Maria Santos', phone:'09171234567', email:'maria@example.com', address:'Malvar, Batangas', pack:'Standard Business Package', status:'Active'},
+    {id:'CL-002', name:'Manufacturing', type:'Manufacturing', contact:'Juan Reyes', phone:'09181234567', email:'juan@example.com', address:'Tanauan, Batangas', pack:'Bulk Business Package', status:'Active'}
+  ],
+  items: [
+    {id:'ITM-001', client:'CL-001', name:'Carton packaging boxes', qty:120, unit:'box', loc:'LOC-A01', condition:'Good'},
+    {id:'ITM-002', client:'CL-002', name:'Plastic components', qty:75, unit:'box', loc:'LOC-B01', condition:'Good'}
+  ],
+  locs: [
+    {id:'LOC-A01', zone:'Zone A', rack:'Rack 01', status:'Occupied'},
+    {id:'LOC-A02', zone:'Zone A', rack:'Rack 02', status:'Available'},
+    {id:'LOC-B01', zone:'Zone B', rack:'Rack 01', status:'Occupied'},
+    {id:'LOC-B02', zone:'Zone B', rack:'Rack 02', status:'Available'}
+  ],
+  tx: [
+    {id:'REC-0001', type:'Receiving', date:today(), client:'CL-001', item:'ITM-001', name:'Carton packaging boxes', qty:120, unit:'box', person:'Admin', status:'Completed'},
+    {id:'REC-0002', type:'Receiving', date:today(), client:'CL-002', item:'ITM-002', name:'Plastic components', qty:75, unit:'box', person:'Admin', status:'Completed'}
+  ],
+  users: [
+    {name:'Admin', email:'admin@wareease.com', role:'Administrator', status:'Active'}
+  ],
+  settings: {
+    business: 'WareEase',
+    hours: '12 hours per day, 6 days per week',
+    site: 'Proposed facility — location to be confirmed'
+  }
+};
+
+let db;
+try {
+  db = JSON.parse(localStorage.getItem(KEY)) || JSON.parse(JSON.stringify(seed));
+} catch(e) {
+  db = JSON.parse(JSON.stringify(seed));
+}
+
+let page = 'dashboard';
+const save = () => localStorage.setItem(KEY, JSON.stringify(db));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cname = id => db.clients.find(c => c.id === id)?.name || 'Unknown client';
+
+function toast(s) {
+  let t = document.getElementById('toast');
+  t.textContent = s;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2300);
+}
+
+function next(prefix, arr) {
+  let n = arr.length + 1;
+  while(arr.some(x => x.id === prefix + '-' + String(n).padStart(4, '0'))) n++;
+  return prefix + '-' + String(n).padStart(4, '0');
+}
+
+function table(h, rows) {
+  return '<div class="tablewrap"><table><thead><tr>' + h.map(x => '<th>' + x + '</th>').join('') + '</tr></thead><tbody>' + (rows || '<tr><td colspan="' + h.length + '" style="text-align:center; color:var(--slate-500); padding:24px;">No records found.</td></tr>') + '</tbody></table></div>';
+}
+
+function badge(s) {
+  let inactiveClass = (s === 'Inactive' || s === 'Damaged') ? ' inactive' : '';
+  return `<span class="badge${inactiveClass}">${esc(s)}</span>`;
+}
+
+function copt() {
+  return '<option value="">Select client</option>' + db.clients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+}
+
+function iopt(cl = '') {
+  return '<option value="">Select item</option>' + db.items.filter(i => !cl || i.client === cl).map(i => `<option value="${i.id}">${esc(i.name)} · ${i.qty} ${i.unit}</option>`).join('');
+}
+
+function lopt() {
+  return '<option value="">Select location</option>' + db.locs.map(l => `<option value="${l.id}">${l.id} · ${l.zone}/${l.rack} (${l.status})</option>`).join('');
+}
+
+function H(t, d, b = '') {
+  return `<div class="head"><div><h1>${t}</h1><p>${d}</p></div>${b}</div>`;
+}
+
+function stat(t, n, d) {
+  return `<div class="card"><small>${t}</small><strong>${n}</strong><small>${d}</small></div>`;
+}
+
+function renderNav() {
+  document.getElementById('nav').innerHTML = pages.map(p => `<button data-page="${p[0]}" class="${p[0] === page ? 'active' : ''}">${p[1]}</button>`).join('');
+}
+
+function closeModal() {
+  document.getElementById('modalbg').classList.remove('open');
+}
+
+function openModal(html) {
+  document.getElementById('modalcontent').innerHTML = html;
+  document.getElementById('modalbg').classList.add('open');
+}
+
+function render() {
+  renderNav();
+  document.getElementById('crumb').textContent = titles[page];
+  let total = db.items.reduce((a, i) => a + Number(i.qty), 0), out = '';
+
+  if(page === 'dashboard') {
+    out = `<div class="cards">${stat('REGISTERED CLIENTS', db.clients.length, 'Total Business Accounts')}${stat('INVENTORY ITEMS', db.items.length, 'Distinct Item Records')}${stat('UNITS IN STOCK', total, 'Recorded Quantity')}${stat('TRANSACTIONS TODAY', db.tx.filter(t => t.date === today()).length, 'Receiving and Releasing')}</div>` +
+      `<div class="dashboard-grid">` +
+        `<div class="panel span-2">` +
+          `<div class="panelhead"><h2>Monthly Receiving & Releasing</h2><select style="width: auto; padding: 6px 12px;"><option>2026</option></select></div>` +
+          `<div class="chart-container"><canvas id="receivingReleasingChart"></canvas></div>` +
+        `</div>` +
+        `<div class="panel">` +
+          `<div class="panelhead"><h2>Inventory by Category</h2></div>` +
+          `<div class="chart-container"><canvas id="categoryChart"></canvas></div>` +
+        `</div>` +
+        `<div class="panel">` +
+          `<div class="panelhead"><h2>Storage Capacity Utilization</h2></div>` +
+          `<div class="chart-container"><canvas id="utilizationChart"></canvas></div>` +
+        `</div>` +
+        `<div class="panel span-2">` +
+          `<div class="panelhead"><h2>Monthly Inventory Movement Forecast</h2><select style="width: auto; padding: 6px 12px;"><option>2026</option></select></div>` +
+          `<div class="chart-container"><canvas id="forecastChart"></canvas></div>` +
+        `</div>` +
+        `<div class="panel span-2">` +
+          `<div class="panelhead"><h2>Stock Level by Client</h2></div>` +
+          `<div class="chart-container"><canvas id="clientStockChart"></canvas></div>` +
+        `</div>` +
+        `<div class="panel">` +
+          `<div class="panelhead"><h2>Projected Storage Demand</h2></div>` +
+          `<div class="chart-container"><canvas id="demandChart"></canvas></div>` +
+        `</div>` +
+      `</div>` +
+      `<div class="panel">` +
+        `<div class="panelhead"><h2>Inventory Trend and Forecast (Monthly)</h2></div>` +
+        table(['Month', 'Actual Units', 'Forecast Units', 'Storage Target (Units)', 'Month', 'Actual Units', 'Forecast Units', 'Storage Target (Units)'], `
+          <tr><td>January</td><td>20</td><td>25</td><td>50</td><td>July</td><td>36</td><td>52</td><td>70</td></tr>
+          <tr><td>February</td><td>28</td><td>32</td><td>50</td><td>August</td><td>40</td><td>55</td><td>70</td></tr>
+          <tr><td>March</td><td>35</td><td>38</td><td>60</td><td>September</td><td>45</td><td>58</td><td>70</td></tr>
+          <tr><td>April</td><td>42</td><td>45</td><td>60</td><td>October</td><td>52</td><td>62</td><td>80</td></tr>
+          <tr><td>May</td><td>40</td><td>48</td><td>60</td><td>November</td><td>58</td><td>68</td><td>80</td></tr>
+          <tr><td>June</td><td>30</td><td>50</td><td>60</td><td>December</td><td>60</td><td>70</td><td>80</td></tr>
+        `) +
+      `</div>` +
+      `<div style="display: flex; justify-content: space-between; align-items: center; color: var(--slate-500); font-size: 12px; margin-top: 10px;">` +
+        `<span>⌧ Illustrative dashboard mockup — sample values for demonstration only. Figures do not represent actual operational data.</span>` +
+        `<span>WareEase | Storage & Inventory Management System</span>` +
+      `</div>`;
+  } else if(page === 'clients') {
+    out = H(titles[page], 'Register and maintain business client profiles.', '<button class="primary" data-act="client">＋ Add Client</button>') +
+      `<div class="panel"><div class="toolbar"><input id="q" placeholder="Search business, contact, ID..."><select id="status"><option value="">All statuses</option><option>Active</option><option>Inactive</option></select></div><div id="tab"></div></div>`;
+  } else if(page === 'inventory') {
+    out = H(titles[page], 'View current stock by client and storage location.') +
+      `<div class="panel"><div class="toolbar"><input id="q" placeholder="Search item, SKU, client..."><select id="cf"><option value="">All clients</option>` + db.clients.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('') + `</select></div><div id="tab"></div></div>`;
+  } else if(page === 'receiving') {
+    out = H(titles[page], 'Record incoming goods and update inventory.') +
+      `<div class="notice">Saving a record automatically updates inventory levels and generates a traceable transaction reference.</div>` +
+      `<div class="panel"><h2>Receiving Details</h2><form id="receive"><div class="fieldgrid">` +
+      `<div class="field"><label>Business Client *</label><select name="client" required>${copt()}</select></div>` +
+      `<div class="field"><label>Existing Item (Optional)</label><select name="existing" id="existing">${iopt()}</select></div>` +
+      `<div class="field"><label>Item Description *</label><input name="name" required placeholder="e.g. Cardboard boxes"></div>` +
+      `<div class="field"><label>Quantity Received *</label><input name="qty" type="number" min="1" step="1" required placeholder="0"></div>` +
+      `<div class="field"><label>Unit *</label><select name="unit"><option>box</option><option>piece</option><option>pallet</option><option>carton</option><option>kg</option><option>unit</option></select></div>` +
+      `<div class="field"><label>Condition</label><select name="condition"><option>Good</option><option>For inspection</option><option>Damaged</option></select></div>` +
+      `<div class="field"><label>Storage Location *</label><select name="loc" required>${lopt()}</select></div>` +
+      `<div class="field"><label>Received By *</label><input name="person" required value="Admin"></div>` +
+      `<div class="field full"><label>Remarks / Notes</label><textarea name="notes" placeholder="Optional delivery notes..."></textarea></div>` +
+      `</div><div class="actions"><button type="reset" class="secondary">Clear Form</button><button type="submit" class="primary">Save Receiving Record</button></div></form></div>`;
+  } else if(page === 'releasing') {
+    out = H(titles[page], 'Release goods against available stock and record the movement.') +
+      `<div class="notice">Release quantity cannot exceed the available stock limit for the selected item.</div>` +
+      `<div class="panel"><h2>Release Details</h2><form id="release"><div class="fieldgrid">` +
+      `<div class="field"><label>Business Client *</label><select name="client" id="rc" required>${copt()}</select></div>` +
+      `<div class="field"><label>Inventory Item *</label><select name="item" id="ri" required>${iopt()}</select></div>` +
+      `<div class="field"><label>Available Stock</label><input id="avail" readonly placeholder="Select an item above"></div>` +
+      `<div class="field"><label>Quantity to Release *</label><input name="qty" type="number" min="1" step="1" required placeholder="0"></div>` +
+      `<div class="field"><label>Authorized Representative *</label><input name="person" required placeholder="Name of person picking up"></div>` +
+      `<div class="field"><label>Processed By *</label><input name="processor" required value="Admin"></div>` +
+      `<div class="field full"><label>Authorization / Remarks</label><textarea name="notes" placeholder="Gate pass or tracking notes..."></textarea></div>` +
+      `</div><div class="actions"><button type="reset" class="secondary">Clear Form</button><button type="submit" class="primary">Confirm Release</button></div></form></div>`;
+  } else if(page === 'locations') {
+    out = H(titles[page], 'Maintain storage location records.', '<button class="primary" data-act="location">＋ Add Location</button>') +
+      `<div class="panel" id="tab"></div>`;
+  } else if(page === 'transactions') {
+    out = H(titles[page], 'Review all receiving and releasing activity logs.') +
+      `<div class="panel"><div class="toolbar"><input id="q" placeholder="Search reference, client, item..."><select id="type"><option value="">All types</option><option>Receiving</option><option>Releasing</option></select><input type="date" id="date"></div><div id="tab"></div></div>`;
+  } else if(page === 'reports') {
+    out = H(titles[page], 'Summaries generated from current prototype records.') +
+      `<div class="cards">${stat('Clients', db.clients.length, 'Registered')}${stat('Stock units', total, 'Recorded quantity')}${stat('Receiving', db.tx.filter(t => t.type === 'Receiving').length, 'Transactions')}${stat('Releasing', db.tx.filter(t => t.type === 'Releasing').length, 'Transactions')}</div>` +
+      `<div class="panel"><div class="panelhead"><h2>Current Inventory Status Report</h2></div><div id="tab"></div></div>`;
+  } else if(page === 'users') {
+    out = H(titles[page], 'Directory of users and access roles.', '<button class="primary" data-act="user">＋ Add User</button>') +
+      `<div class="panel" id="tab"></div>`;
+  } else if(page === 'settings') {
+    out = H(titles[page], 'Manage business profile and local data.') +
+      `<div class="panel"><h2>Business Profile</h2><form id="settings"><div class="fieldgrid"><div class="field"><label>Business Name</label><input name="business" value="${esc(db.settings.business)}"></div><div class="field"><label>Operating Schedule</label><input name="hours" value="${esc(db.settings.hours)}"></div><div class="field full"><label>Facility Note</label><input name="site" value="${esc(db.settings.site)}"></div></div><div class="actions"><button type="submit" class="primary">Save Settings</button></div></form></div>` +
+      `<div class="panel"><h2>Data Controls</h2><p style="color:var(--slate-500); margin-bottom:14px;">All data is safely saved in your local browser storage.</p><div style="display:flex; gap:10px;"><button class="secondary" data-act="backup">Download JSON Backup</button><button class="danger" data-act="reset">Reset Data</button></div></div>`;
+  }
+
+  document.getElementById('content').innerHTML = out;
+  bind();
+  
+  if(page === 'dashboard') {
+    renderCharts();
+  }
+}
+
+function renderCharts() {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  const ctxRecRel = document.getElementById('receivingReleasingChart').getContext('2d');
+  new Chart(ctxRecRel, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Receiving (Units)', data: [20, 28, 35, 42, 40, 30, 26, 34, 37, 45, 50, 48], backgroundColor: '#0052cc', borderRadius: 4 },
+        { label: 'Releasing (Units)', data: [15, 22, 30, 38, 32, 28, 24, 29, 31, 40, 42, 36], backgroundColor: '#ff7800', borderRadius: 4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+  });
+
+  const ctxCat = document.getElementById('categoryChart').getContext('2d');
+  new Chart(ctxCat, {
+    type: 'doughnut',
+    data: {
+      labels: ['Storage Items', 'Packaging Materials', 'Equipment & Supplies'],
+      datasets: [{
+        data: [127, 49, 19],
+        backgroundColor: ['#003d99', '#0052cc', '#ff7800'],
+        borderWidth: 0
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '75%' }
+  });
+
+  const ctxUtil = document.getElementById('utilizationChart').getContext('2d');
+  new Chart(ctxUtil, {
+    type: 'doughnut',
+    data: {
+      labels: ['Occupied 68%', 'Available 32%'],
+      datasets: [{
+        data: [442, 208],
+        backgroundColor: ['#ff7800', '#e6f0ff'],
+        borderWidth: 0
+      }]
+    },
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false, 
+      plugins: { 
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: function(context) { return context.label; } } }
+      }, 
+      cutout: '75%' 
+    }
+  });
+
+  const ctxForecast = document.getElementById('forecastChart').getContext('2d');
+  new Chart(ctxForecast, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Actual Units', data: [20, 28, 35, 42, 40, 30, 26, 34, 37, 45, 50, 48], backgroundColor: '#0052cc', borderRadius: 4 },
+        { label: 'Forecasted Units', data: [25, 32, 38, 45, 48, 50, 52, 55, 58, 62, 68, 70], backgroundColor: '#ff7800', borderRadius: 4 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+  });
+
+  const ctxClientStock = document.getElementById('clientStockChart').getContext('2d');
+  new Chart(ctxClientStock, {
+    type: 'bar',
+    data: {
+      labels: ['Client A', 'Client B'],
+      datasets: [{
+        label: 'Units',
+        data: [120, 75],
+        backgroundColor: ['#003d99', '#ff7800'],
+        borderRadius: 4
+      }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  const ctxDemand = document.getElementById('demandChart').getContext('2d');
+  new Chart(ctxDemand, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Actual Demand (sqm)', data: [220, 280, 340, 380, 390, 400, 410, 420, 440, 460, 480, 490], borderColor: '#0052cc', backgroundColor: '#0052cc', tension: 0.2 },
+        { label: 'Forecasted Demand (sqm)', data: [240, 300, 360, 400, 410, 405, 425, 450, 480, 510, 540, 570], borderColor: '#ff7800', backgroundColor: '#ff7800', tension: 0.2 }
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+  });
+}
+
+function bind() {
+  document.querySelectorAll('[data-page]').forEach(b => {
+    b.onclick = () => { page = b.dataset.page; render(); };
+  });
+
+  document.querySelectorAll('[data-go]').forEach(b => {
+    b.onclick = () => { page = b.dataset.go; render(); };
+  });
+
+  let menuBtn = document.getElementById('menu');
+  if(menuBtn) {
+    menuBtn.onclick = () => { document.getElementById('side').classList.toggle('open'); };
+  }
+
+  document.getElementById('modalbg').onclick = e => {
+    if(e.target === document.getElementById('modalbg')) closeModal();
+  };
+
+  if(page === 'clients') {
+    let draw = () => {
+      let q = document.getElementById('q').value.toLowerCase(), s = document.getElementById('status').value;
+      let filtered = db.clients.filter(c => (!s || c.status === s) && JSON.stringify(c).toLowerCase().includes(q));
+      document.getElementById('tab').innerHTML = table(['Client ID', 'Business', 'Contact', 'Package', 'Status', 'Action'], filtered.map(c => `<tr><td><b>${c.id}</b></td><td><b>${esc(c.name)}</b><br><small style="color:var(--slate-500);">${esc(c.type)}</small></td><td>${esc(c.contact)}<br><small style="color:var(--slate-500);">${esc(c.email)}</small></td><td>${esc(c.pack)}</td><td>${badge(c.status)}</td><td><button class="secondary" style="padding:6px 12px; font-size:12px;" data-edit-client="${c.id}">Edit</button></td></tr>`).join(''));
+      
+      document.querySelectorAll('[data-edit-client]').forEach(btn => {
+        btn.onclick = () => openClientModal(btn.dataset.editClient);
+      });
+    };
+    draw();
+    document.getElementById('q').oninput = draw;
+    document.getElementById('status').onchange = draw;
+  }
+
+  if(page === 'inventory') {
+    let draw = () => {
+      let q = document.getElementById('q').value.toLowerCase(), cl = document.getElementById('cf').value;
+      let filtered = db.items.filter(i => (!cl || i.client === cl) && JSON.stringify({...i, clientName: cname(i.client)}).toLowerCase().includes(q));
+      document.getElementById('tab').innerHTML = table(['SKU', 'Item', 'Client', 'Quantity', 'Location', 'Condition'], filtered.map(i => `<tr><td><b>${i.id}</b></td><td>${esc(i.name)}</td><td>${esc(cname(i.client))}</td><td><b>${i.qty}</b> ${i.unit}</td><td>${i.loc}</td><td>${badge(i.condition)}</td></tr>`).join(''));
+    };
+    draw();
+    document.getElementById('q').oninput = draw;
+    document.getElementById('cf').onchange = draw;
+  }
+
+  if(page === 'locations') {
+    document.getElementById('tab').innerHTML = table(['Location', 'Zone', 'Rack', 'Status'], db.locs.map(l => `<tr><td><b>${l.id}</b></td><td>${esc(l.zone)}</td><td>${esc(l.rack)}</td><td>${badge(l.status)}</td></tr>`).join(''));
+  }
+
+  if(page === 'transactions') {
+    let draw = () => {
+      let q = document.getElementById('q').value.toLowerCase(), ty = document.getElementById('type').value, d = document.getElementById('date').value;
+      let filtered = db.tx.slice().reverse().filter(t => (!ty || t.type === ty) && (!d || t.date === d) && JSON.stringify({...t, clientName: cname(t.client)}).toLowerCase().includes(q));
+      document.getElementById('tab').innerHTML = table(['Reference', 'Date', 'Type', 'Client', 'Item', 'Quantity', 'By', 'Status'], filtered.map(t => `<tr><td><b>${t.id}</b></td><td>${t.date}</td><td>${t.type}</td><td>${esc(cname(t.client))}</td><td>${esc(t.name)}</td><td><b>${t.qty}</b> ${t.unit}</td><td>${esc(t.person)}</td><td>${badge(t.status)}</td></tr>`).join(''));
+    };
+    draw();
+    document.getElementById('q').oninput = draw;
+    document.getElementById('type').onchange = draw;
+    document.getElementById('date').onchange = draw;
+  }
+
+  if(page === 'reports') {
+    document.getElementById('tab').innerHTML = table(['SKU', 'Item', 'Client', 'Quantity', 'Location'], db.items.map(i => `<tr><td><b>${i.id}</b></td><td>${esc(i.name)}</td><td>${esc(cname(i.client))}</td><td><b>${i.qty}</b> ${i.unit}</td><td>${i.loc}</td></tr>`).join(''));
+  }
+
+  if(page === 'users') {
+    document.getElementById('tab').innerHTML = table(['Name', 'Email', 'Role', 'Status'], db.users.map(u => `<tr><td><b>${esc(u.name)}</b></td><td>${esc(u.email)}</td><td>${esc(u.role)}</td><td>${badge(u.status)}</td></tr>`).join(''));
+  }
+
+  let recForm = document.getElementById('receive');
+  if(recForm) {
+    let clientSel = recForm.querySelector('[name="client"]');
+    let existingSel = document.getElementById('existing');
+    clientSel.onchange = () => { existingSel.innerHTML = iopt(clientSel.value); };
+    existingSel.onchange = () => {
+      let item = db.items.find(i => i.id === existingSel.value);
+      if(item) {
+        recForm.querySelector('[name="name"]').value = item.name;
+        recForm.querySelector('[name="unit"]').value = item.unit;
+        recForm.querySelector('[name="loc"]').value = item.loc;
+      }
+    };
+    recForm.onsubmit = e => {
+      e.preventDefault();
+      let data = Object.fromEntries(new FormData(recForm));
+      let itemId = data.existing || next('ITM', db.items);
+      let existingItem = db.items.find(i => i.id === itemId);
+      
+      if(existingItem) {
+        existingItem.qty += Number(data.qty);
+      } else {
+        db.items.push({ id: itemId, client: data.client, name: data.name, qty: Number(data.qty), unit: data.unit, loc: data.loc, condition: data.condition });
+      }
+
+      let txId = next('REC', db.tx);
+      db.tx.push({ id: txId, type: 'Receiving', date: today(), client: data.client, item: itemId, name: data.name, qty: Number(data.qty), unit: data.unit, person: data.person, status: 'Completed' });
+      
+      let locObj = db.locs.find(l => l.id === data.loc);
+      if(locObj) locObj.status = 'Occupied';
+
+      save();
+      toast('Receiving recorded successfully!');
+      page = 'transactions';
+      render();
+    };
+  }
+
+  let relForm = document.getElementById('release');
+  if(relForm) {
+    let rc = document.getElementById('rc'), ri = document.getElementById('ri'), avail = document.getElementById('avail');
+    rc.onchange = () => { ri.innerHTML = iopt(rc.value); avail.value = ''; };
+    ri.onchange = () => {
+      let item = db.items.find(i => i.id === ri.value);
+      avail.value = item ? `${item.qty} ${item.unit}` : '';
+    };
+    relForm.onsubmit = e => {
+      e.preventDefault();
+      let data = Object.fromEntries(new FormData(relForm));
+      let item = db.items.find(i => i.id === data.item);
+      if(!item || item.qty < Number(data.qty)) {
+        alert('Insufficient stock available for release.');
+        return;
+      }
+      item.qty -= Number(data.qty);
+      let txId = next('REL', db.tx);
+      db.tx.push({ id: txId, type: 'Releasing', date: today(), client: data.client, item: item.id, name: item.name, qty: Number(data.qty), unit: item.unit, person: data.person, status: 'Completed' });
+      
+      save();
+      toast('Inventory released successfully!');
+      page = 'transactions';
+      render();
+    };
+  }
+
+  let setForm = document.getElementById('settings');
+  if(setForm) {
+    setForm.onsubmit = e => {
+      e.preventDefault();
+      let data = Object.fromEntries(new FormData(setForm));
+      db.settings.business = data.business;
+      db.settings.hours = data.hours;
+      db.settings.site = data.site;
+      save();
+      toast('Settings updated successfully!');
+    };
+  }
+
+  document.querySelectorAll('[data-act]').forEach(b => {
+    b.onclick = () => {
+      let act = b.dataset.act;
+      if(act === 'reset') {
+        if(confirm('Reset all demo data back to default?')) {
+          localStorage.removeItem(KEY);
+          db = JSON.parse(JSON.stringify(seed));
+          page = 'dashboard';
+          render();
+          toast('Demo data reset.');
+        }
+      } else if(act === 'backup') {
+        let blob = new Blob([JSON.stringify(db, null, 2)], {type: 'application/json'});
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = 'parcelease_backup.json';
+        a.click();
+        toast('Backup downloaded!');
+      } else if(act === 'client') {
+        openClientModal();
+      } else if(act === 'location') {
+        openLocationModal();
+      } else if(act === 'user') {
+        openUserModal();
+      }
+    };
+  });
+}
+
+function openClientModal(id = null) {
+  let c = id ? db.clients.find(x => x.id === id) : {id: next('CL', db.clients), name:'', type:'Trading/Retail', contact:'', phone:'', email:'', address:'', pack:'Standard Business Package', status:'Active'};
+  openModal(`
+    <h2>${id ? 'Edit Client Profile' : 'Add New Client'}</h2>
+    <form id="clientform">
+      <div class="fieldgrid">
+        <div class="field"><label>Client ID</label><input name="id" value="${c.id}" readonly></div>
+        <div class="field"><label>Business Name *</label><input name="name" required value="${esc(c.name)}"></div>
+        <div class="field"><label>Business Type</label><select name="type"><option ${c.type==='Trading/Retail'?'selected':''}>Trading/Retail</option><option ${c.type==='Manufacturing'?'selected':''}>Manufacturing</option><option ${c.type==='E-commerce'?'selected':''}>E-commerce</option><option ${c.type==='Logistics'?'selected':''}>Logistics</option></select></div>
+        <div class="field"><label>Contact Person</label><input name="contact" value="${esc(c.contact)}"></div>
+        <div class="field"><label>Phone Number</label><input name="phone" value="${esc(c.phone)}"></div>
+        <div class="field"><label>Email Address</label><input name="email" type="email" value="${esc(c.email)}"></div>
+        <div class="field full"><label>Business Address</label><input name="address" value="${esc(c.address)}"></div>
+<div class="field"><label>Storage Package</label><select name="pack"><option ${c.pack==='Basic Business Package'?'selected':''}>Basic Business Package</option><option ${c.pack==='Standard Business Package'?'selected':''}>Standard Business Package</option><option ${c.pack==='Bulk Business Package'?'selected':''}>Bulk Business Package</option><option ${c.pack==='Enterprise Package'?'selected':''}>Enterprise Package</option></select></div>        <div class="field"><label>Account Status</label><select name="status"><option ${c.status==='Active'?'selected':''}>Active</option><option ${c.status==='Inactive'?'selected':''}>Inactive</option></select></div>
+      </div>
+      <div class="actions">
+        <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="primary">Save Client</button>
+      </div>
+    </form>
+  `);
+
+  document.getElementById('clientform').onsubmit = e => {
+    e.preventDefault();
+    let data = Object.fromEntries(new FormData(e.target));
+    let idx = db.clients.findIndex(x => x.id === data.id);
+    if(idx >= 0) {
+      db.clients[idx] = data;
+    } else {
+      db.clients.push(data);
+    }
+    save();
+    closeModal();
+    toast('Client saved successfully!');
+    render();
+  };
+}
+
+function openLocationModal() {
+  let id = next('LOC', db.locs);
+  openModal(`
+    <h2>Add Storage Location</h2>
+    <form id="locform">
+      <div class="fieldgrid">
+        <div class="field"><label>Location ID</label><input name="id" value="${id}" readonly></div>
+        <div class="field"><label>Zone *</label><input name="zone" required placeholder="e.g. Zone C"></div>
+        <div class="field"><label>Rack / Shelf *</label><input name="rack" required placeholder="e.g. Rack 01"></div>
+        <div class="field"><label>Status</label><select name="status"><option>Available</option><option>Occupied</option></select></div>
+      </div>
+      <div class="actions">
+        <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="primary">Save Location</button>
+      </div>
+    </form>
+  `);
+
+  document.getElementById('locform').onsubmit = e => {
+    e.preventDefault();
+    let data = Object.fromEntries(new FormData(e.target));
+    db.locs.push(data);
+    save();
+    closeModal();
+    toast('Location added successfully!');
+    render();
+  };
+}
+
+function openUserModal() {
+  openModal(`
+    <h2>Add User Account</h2>
+    <form id="userform">
+      <div class="fieldgrid">
+        <div class="field"><label>Full Name *</label><input name="name" required placeholder="e.g. Jane Doe"></div>
+        <div class="field"><label>Email Address *</label><input name="email" type="email" required placeholder="jane@wareease.com"></div>
+        <div class="field"><label>Role</label><select name="role"><option>Administrator</option><option>Staff</option></select></div>
+        <div class="field"><label>Status</label><select name="status"><option>Active</option><option>Inactive</option></select></div>
+      </div>
+      <div class="actions">
+        <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="primary">Save User</button>
+      </div>
+    </form>
+  `);
+
+  document.getElementById('userform').onsubmit = e => {
+    e.preventDefault();
+    let data = Object.fromEntries(new FormData(e.target));
+    db.users.push(data);
+    save();
+    closeModal();
+    toast('User added successfully!');
+    render();
+  };
+}
+
+render();
+</script>
+</body>
+</html>
